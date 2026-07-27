@@ -1,0 +1,52 @@
+Dev Tinder
+---------
+
+Create an account
+Login
+Update your profile
+Feed page - explore other developers
+Send connection request
+See our matches
+See the requests we have sent
+Update your profile
+
+
+Tech PLanning
+-------------
+
+2 microservices
+- FE (React)
+- BE (NodeJS, MongoDB) - Auth - JWT Token
+
+HLD
+
+LLD
+- DB design 
+Where and how we save the data
+
+ User collection
+ - fn
+ - ln
+ - password
+ - emailId
+ - age
+ - gender
+
+ connectionRequest collection
+ - fromUserId
+ - toUserId
+ - status - PENDING, ACCEPTED, REJECTED, IGNORED
+
+
+
+- API design/contracts
+ POST /signup
+ POST /login
+ GET /profile
+ POST /profile
+ PATCH /profile
+ DELETE /profile
+ POST /sendRequest (ignore/interested)
+ POST /reviewRequest (accept/reject)
+ GET /requests
+ GET /connections

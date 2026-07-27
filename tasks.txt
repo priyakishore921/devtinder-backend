@@ -1,0 +1,15 @@
+- Requirements
+- HLD
+- LLD
+
+- BE
+    - create express server
+        - initialise repo with npm init
+        - create src/app.js which is the entry point
+        - create a http server
+        - listen on a port may be - 3000
+        - write a request handler
+        - install nodemon
+        - add scripts to package.json
+
+    - Rounting and Request handlers
