@@ -59,6 +59,20 @@ app.delete("/user", async (req, res) => {
     }
 });
 
+// update data of the user
+app.patch("/user", async (req, res) => {
+    try {
+        const userId = req.query.id;
+        const updatedData = req.body;
+
+        await User.findByIdAndUpdate({_id: userId}, updatedData);
+        
+        res.status(200).send("User updated successfully");
+    } catch (err) {
+        res.status(500).send("Error updating user: " + err.message);
+    }
+});
+
 // get all users from DB
 app.get("/feed", async (req, res) => {
     try {
