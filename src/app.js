@@ -46,6 +46,19 @@ app.get("/user", async (req, res) => {
     }
 });
 
+// delete a user by id
+app.delete("/user", async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.query.id);
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+        res.status(200).send("User deleted successfully");
+    } catch (err) {
+        res.status(500).send("Error deleting user: " + err.message);
+    }
+});
+
 // get all users from DB
 app.get("/feed", async (req, res) => {
     try {
