@@ -1,1 +1,0 @@
-const url = "mongodb+srv://priyanka:priyanka@myfreecluster.akatsav.mongodb.net/";
