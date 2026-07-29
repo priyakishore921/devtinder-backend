@@ -17,11 +17,9 @@ app.post("/signup", async (req, res) => {
             lastName: req.body.lastName,
             email: req.body.email,
             password: req.body.password,
-            gender: req.body.gender,
-            age: req.body.age
         };
 
-        const user = new User(req.body);
+        const user = new User(userObj);
         // save returns a promise, so we need to await it
         await user.save();
 
@@ -61,11 +59,27 @@ app.delete("/user", async (req, res) => {
 
 // update data of the user
 app.patch("/user", async (req, res) => {
-    try {
-        const userId = req.query.id;
-        const updatedData = req.body;
+    const userId = req.query.id;
+    const updatedData = req.body;
 
-        await User.findByIdAndUpdate({_id: userId}, updatedData);
+    try {
+        // do not allow email id and user id to be updated
+        if (updatedData.email || updatedData._id) {
+            return res.status(400).send("Email and user ID cannot be updated");
+        }
+        
+        if (updatedData.skills && updatedData.skills.length > 10) {
+            return res.status(400).send("Skills cannot be more than 10");
+        }
+
+        // ensure skills are unique
+        if (updatedData.skills) {
+            updatedData.skills = [...new Set(updatedData.skills)];
+        }
+
+        await User.findByIdAndUpdate({_id: userId}, updatedData, {
+            runValidators: true,
+        });
         
         res.status(200).send("User updated successfully");
     } catch (err) {

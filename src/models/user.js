@@ -3,22 +3,53 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
+        required: true,
+        minLength: 4,
+        maxLength: 100,
     },
     lastName: {
         type: String,
+        minLength: 1,
+        maxLength: 100,
     },
     email: {
         type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true,
     },
     password: {
         type: String,
+        required: true,
     },
     gender: {
         type: String,
+        lowercase: true,
+        validate: {
+            validator: function(value) {
+                const validGenders = ["male", "female", "other"];
+                if (!validGenders.includes(value)) {
+                    throw new Error("Gender must be either male, female, or other");
+                }
+            },
+        }
     },
     age: {
         type: Number,
+        min: 18,
+    },
+    photoUrl: {
+        type: String,
+        default: "https://img.magnific.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?semt=ais_test_b&w=740&q=80",
+    },
+    about: {
+        type: String,
+        default: "This is a default about me section. You can update it later.",
+    },
+    skills: {
+        type: [String],
     }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
