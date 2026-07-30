@@ -1,10 +1,13 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 const connectDB = require('./config/database');
 const User = require('./models/user');
 const validateSignupData = require('./utils/validation');
+const userAuth = require('./middlewares/auth');
 
 const app = express();
 
@@ -12,6 +15,7 @@ const app = express();
  * Middleware to parse JSON bodies
  */
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
     try {
@@ -57,11 +61,33 @@ app.post("/login", async (req, res) => {
             return res.status(401).send("Invalid credentials");
         }
 
-        res.status(200).send("Login successful");      
+        // create JWT token
+        const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$790", { expiresIn: "1h" });
+        // create a cookie with the JWT token and send it to the client
+        res.cookie("token", token, {
+            expires: new Date(Date.now() + 7 * 24 * 3600000), // 7 days
+        });
+        res.status(200).send("Login successful");
     } catch (err) {
         res.status(500).send("Error logging in: " + err.message);
     }
-})
+});
+
+app.get("/profile", userAuth, async (req, res) => {
+    try {
+        res.status(200).send(req.user);
+    } catch (err) {
+        res.status(500).send("Error: " + err.message);
+    }
+});
+
+app.post("/sendConnectonRequest", userAuth, async (req, res) => {
+    try {
+        res.send("Connection request sent successfully");
+    } catch (err) {
+        res.status(500).send("Error: " + err.message);
+    }
+});
 
 // a get a user by email
 app.get("/user", async (req, res) => {
