@@ -1,6 +1,10 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
+const validator = require('validator');
+
 const connectDB = require('./config/database');
 const User = require('./models/user');
+const validateSignupData = require('./utils/validation');
 
 const app = express();
 
@@ -10,15 +14,22 @@ const app = express();
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-    // console.log("req body", req.body);
     try {
+        // validate user data
+        validateSignupData(req);
+
+        
         const userObj = {
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             email: req.body.email,
             password: req.body.password,
         };
-
+        
+        // encrypt the password before saving to DB
+        const hashedPassword = await bcrypt.hash(userObj.password, 10);
+        userObj.password = hashedPassword;
+        
         const user = new User(userObj);
         // save returns a promise, so we need to await it
         await user.save();
@@ -29,6 +40,28 @@ app.post("/signup", async (req, res) => {
         res.status(400).send("Error saving the user: " + err.message);
     }
 });
+
+app.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // validate email
+        if (validator.isEmail(email) === false) {
+            return res.status(400).send("Invalid credentials");
+        }
+
+        const user = await User.findOne({ email });
+
+        // decrypt the password and compare with the hashed password in DB
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.status(401).send("Invalid credentials");
+        }
+
+        res.status(200).send("Login successful");      
+    } catch (err) {
+        res.status(500).send("Error logging in: " + err.message);
+    }
+})
 
 // a get a user by email
 app.get("/user", async (req, res) => {
