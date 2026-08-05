@@ -80,7 +80,12 @@ userRouter.get('/feed', userAuth, async (req, res) => {
             4. cards of users whom he/she had ignored or rejected in the past or has been ignored or rejected
                 by someone in the past
         */
-        const loggedInUserId = req.user._id;
+       let limit = parseInt(req.query.limit) || 10; // default limit is 10
+       limit = limit > 50 ? 50 : limit; // max limit is 50
+       const page = parseInt(req.query.page) || 1; // default page is 0
+       const skip = (page - 1) * limit;
+
+       const loggedInUserId = req.user._id;
 
         // find all connection requests sent or received by the logged in user
         const connectionRequests = await ConnectionRequest.find({
@@ -95,7 +100,10 @@ userRouter.get('/feed', userAuth, async (req, res) => {
 
         const users = await User.find({
             _id: { $nin: Array.from(hideUserFromFeed) }
-        }).select('firstName lastName email gender age photoUrl');
+        })
+        .select('firstName lastName email gender age photoUrl')
+        .limit(limit)
+        .skip(skip);
 
         res.json({
             message: "User feed",
