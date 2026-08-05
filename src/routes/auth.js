@@ -25,7 +25,7 @@ authRouter.post("/signup", async (req, res) => {
         // save returns a promise, so we need to await it
         await user.save();
 
-        res.status(201).send("User created successfully");
+        res.status(201).json({ message: "User created successfully", data: user});
     } catch (err) {
         console.error(err);
         res.status(400).send("Error saving the user: " + err.message);
