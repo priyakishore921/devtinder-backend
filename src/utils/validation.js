@@ -22,8 +22,7 @@ const validateProfileEditData = (req) => {
 }
 
 
-const validateStatus = (req) => {
-    const allowedStatuses = ["ignored", "interested", "accepted", "rejected"];
+const validateStatus = (req, allowedStatuses = ["ignored", "interested", "accepted", "rejected"]) => {
     
     const { status } = req.params;
     return allowedStatuses.includes(status)

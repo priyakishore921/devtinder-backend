@@ -56,9 +56,50 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
         const data = await connectionRequest.save();
         res.json({ message, data });
     } catch (err) {
-        console.log("Error in sending connection request: ", err);
         res.status(500).send("Error: " + err.message);
     }
+});
+
+requestRouter.post("/request/review/:status/:requestId", userAuth, async (req, res) => {
+    try {
+        const { status, requestId } = req.params;
+        const userId = req.user._id;
+
+        // validate the status
+        const allowedStatus = ["accepted", "rejected"];
+        const isValidStatus = validateStatus(req, allowedStatus);
+        if (!isValidStatus) {
+            return res.status(400).json({ message: "Invalid status type: " + status });
+        }
+
+        // requestId is valid and exists
+        // validate if loggedin user us toUserId in request
+        const connectionRequest = await ConnectionRequest.findOne({
+            _id: requestId,
+            toUserId: userId,
+            status: "interested"
+        });
+        
+        if (!connectionRequest) {
+            return res.status(404).json({ message: "Connection request not found " + requestId });
+        }
+        
+        // update the status of the connection request
+        connectionRequest.status = status;
+        const data = await connectionRequest.save();
+
+        let message;
+        if(status === "accepted") {
+            message = "Connection request accepted";
+        } else if(status === "rejected") {
+            message = "Connection request rejected";
+        }
+
+        res.json({ message, data });
+
+    } catch (err) {
+        res.status(500).json({ ERROR: err.message });
+    };
 });
 
 module.exports = requestRouter;
