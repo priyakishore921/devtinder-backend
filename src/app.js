@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 
 const connectDB = require('./config/database');
 const User = require('./models/user');
@@ -20,6 +21,10 @@ const app = express();
  * Middleware to parse JSON bodies
  */
 app.use(express.json());
+app.use(cors({
+    origin: 'http://localhost:5173', // replace with your frontend URL
+    credentials: true, // allow cookies to be sent
+}));
 
 app.use(cookieParser());
 
