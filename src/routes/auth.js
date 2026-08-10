@@ -38,14 +38,14 @@ authRouter.post("/login", async (req, res) => {
 
         // validate email
         if (validator.isEmail(email) === false) {
-            return res.status(400).send("Invalid credentials");
+            return res.status(400).json({ message: "Invalid credentials" });
         }
 
         const user = await User.findOne({ email });
 
         // decrypt the password and compare with the hashed password in DB
         if (!user || !(await user.validatePassword(password))) {
-            return res.status(401).send("Invalid credentials");
+            return res.status(401).json({ message: "Invalid credentials" });
         }
 
         // create JWT token
@@ -57,7 +57,7 @@ authRouter.post("/login", async (req, res) => {
         });
         res.status(200).json({ message: "Login successful", data: user });
     } catch (err) {
-        res.status(500).send("Error logging in: " + err.message);
+        res.status(500).json({ message: "Error logging in: " + err.message });
     }
 });
 
